@@ -15,20 +15,17 @@ env/
 *.py[cod]
 *$py.class
 
-# Variables de entorno (Contraseñas, APIs)
-.env
-
 # INTELIGENCIA ARTIFICIAL
-# Ignorar los modelos entrenados (¡Son muy pesados para Git!)
+# Ignorar los modelos entrenados (¡Son muy pesados y cambian en cada PC!)
 *.pth
 *.pt
 *.onnx
 
-# Ignorar datasets masivos (Opcional: si tu dataset pesa más de 50MB, descomenta esto)
-# *.csv
+# Descomentar la siguiente línea SOLO si el dataset pesa más de 50MB
 # backend/dataset.json 
+# backend/*.csv
 
-# EDITORES Y SISTEMA (Arch / Mac / Windows)
+# EDITORES Y SISTEMA 
 .vscode/
 .idea/
 .DS_Store
