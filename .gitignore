@@ -1,0 +1,35 @@
+# FRONTEND (Angular / Node)
+**/node_modules/
+**/dist/
+**/.angular/
+npm-debug.log*
+
+# BACKEND (Python / PyTorch)
+# Entornos virtuales
+**/venv/
+**/.venv/
+env/
+
+# Caché de Python
+**/__pycache__/
+*.py[cod]
+*$py.class
+
+# Variables de entorno (Contraseñas, APIs)
+.env
+
+# INTELIGENCIA ARTIFICIAL
+# Ignorar los modelos entrenados (¡Son muy pesados para Git!)
+*.pth
+*.pt
+*.onnx
+
+# Ignorar datasets masivos (Opcional: si tu dataset pesa más de 50MB, descomenta esto)
+# *.csv
+# backend/dataset.json 
+
+# EDITORES Y SISTEMA (Arch / Mac / Windows)
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
