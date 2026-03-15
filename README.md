@@ -4,8 +4,8 @@ Este repositorio contiene el código fuente de nuestro chatbot, dividido en un f
 
 ## Requisitos Previos
 Asegúrate de tener instalado en tu computadora:
-- [Node.js](https://nodejs.org/) (incluye npm)
-- [Python 3.8+](https://www.python.org/)
+- [Node.js](https://nodejs.org/) y **pnpm** (puedes instalarlo con `npm install -g pnpm`)
+- [Python 3.8+](https://www.python.org/) y **uv** (gestor ultrarrápido para Python)
 - Git
 
 ---
@@ -14,31 +14,35 @@ Asegúrate de tener instalado en tu computadora:
 
 Sigue estos pasos en orden para levantar el proyecto en tu entorno local:
 
-### Activar frontend
+## Activar frontend
 ```bash
 cd frontend
-npm install
-npm run start
+pnpm install
+pnpm start
+```
+## Activar backend
+```bash
+cd backend
 ```
 
 ### Creación entorno virtual backend
 ```bash
-python -m venv venv
+uv venv
 ```
 
 ### Instalación de librerías necesarias
 ```bash
-pip install -r requirements.txt
+uv pip install -r requirements.txt
 ```
 
 #### Activación de entorno virtual backend
 Si se usa shell fish
 ```bash
-source venv/bin/activate.fish
+source .venv/bin/activate.fish
 ```
 Si se usa bash o zsh
 ```bash
-source venv/bin/activate
+source .venv/bin/activate
 ```
 
 #### Desactivación de entorno virtual backend
