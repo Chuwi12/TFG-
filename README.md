@@ -32,7 +32,7 @@ uv venv
 
 ### Instalación de librerías necesarias
 ```bash
-uv pip install -r requirements.txt
+uv sync
 ```
 
 #### Activación de entorno virtual backend

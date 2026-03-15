@@ -1,0 +1,16 @@
+[project]
+name = "chatbot-backend"
+version = "0.1.0"
+description = "Backend con IA para el TFG"
+readme = "README.md"
+requires-python = ">=3.8"
+dependencies = [
+    "torch",
+    "torchvision",
+    "torchaudio",
+    "nltk",
+    "fastapi",
+    "uvicorn",
+    "numpy",
+    "datasets>=3.1.0",
+]
