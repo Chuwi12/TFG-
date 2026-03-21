@@ -30,3 +30,7 @@ env/
 .idea/
 .DS_Store
 Thumbs.db
+
+# VARIABLES DE ENTORNO LOCALES (Secretos y configuraciones de cada PC)
+.env
+*.env
