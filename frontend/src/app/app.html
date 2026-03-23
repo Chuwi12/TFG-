@@ -1,48 +1,48 @@
-<header class="site-header">
-  <div class="header-container">
-    <div class="brand">
-      <span class="brand-logo">◈</span>
-      <h1>Financial Analytics & Support</h1>
+<header class="main-header">
+  <div class="container">
+    <div class="identity">
+      <span class="symbol">◈</span>
+      <h1 class="division">Financial Analytics Terminal</h1>
     </div>
-    <nav class="header-nav">
-      <span>System Status: Online</span>
-    </nav>
+    <div class="status">System Status: Operational</div>
   </div>
 </header>
 
-<main class="app-viewport">
-  <div class="chat-module">
-    <div class="module-header">
-      <h2>Institutional Banking Assistant</h2>
-      <p class="dataset-info">Core Engine: Banking77 Analysis</p>
+<main class="viewport">
+  <section class="chat-terminal">
+    <div class="terminal-top">
+      <h2>Institutional Support Interface</h2>
+      <small>dataset: Banking77_v1.0</small>
     </div>
 
-    <div class="message-log">
-      <div class="entry system">
-        <div class="entry-content">
-          <p>
-            Welcome. This terminal provides automated support for banking operations, including card
-            management, transaction queries, and account security. How may the system assist you?
-          </p>
+    <div class="log-display">
+      @for (msg of messages(); track $index) {
+        <div
+          class="entry"
+          [class.system]="msg.sender === 'system'"
+          [class.user]="msg.sender === 'user'"
+        >
+          <span class="sender-tag">[{{ msg.sender.toUpperCase() }}]</span>
+          <p>{{ msg.text }}</p>
         </div>
-      </div>
+      }
     </div>
 
-    <form class="input-interface">
-      <input type="text" placeholder="Enter your financial inquiry..." aria-label="Query input" />
+    <form class="interaction-bar" (submit)="$event.preventDefault(); addMessage(userInput)">
+      <input
+        #userInput
+        type="text"
+        placeholder="ENTER TRANSACTION OR QUERY..."
+        aria-label="Input field"
+      />
       <button type="submit">EXECUTE</button>
     </form>
-  </div>
+  </section>
 </main>
 
-<footer class="site-footer">
-  <div class="footer-container">
-    <p>&copy; 2024 Financial Systems Division. All rights reserved.</p>
-    <div class="legal-links">
-      <span>Terms of Service</span>
-      <span>Privacy Protocol</span>
-      <span>System Logs</span>
-    </div>
+<footer class="main-footer">
+  <div class="container">
+    <p>&copy; 2026 TFG de Sergio y Javier. Financial advise powered by AI.</p>
   </div>
 </footer>
 
