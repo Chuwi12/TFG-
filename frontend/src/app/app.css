@@ -9,10 +9,9 @@
   min-height: 100vh;
   background-color: var(--paper);
   color: var(--ink);
-  font-family: var(--mono-font); /* Fuente por defecto */
+  font-family: var(--mono-font);
 }
 
-/* Encabezados con Instrument Serif */
 h1,
 h2,
 .symbol,
@@ -64,8 +63,7 @@ h2,
   height: 450px;
   padding: 1.5rem;
   overflow-y: auto;
-  background-color: rgba(0, 0, 0, 0.02); /* Un toque sutil para diferenciar el fondo */
-}
+  background-color: rgba(0, 0, 0, 0.02);
 
 .entry {
   margin-bottom: 1.5rem;
@@ -89,7 +87,6 @@ h2,
   margin-bottom: 4px;
 }
 
-/* Formulario de envío corregido */
 .interaction-bar {
   display: flex;
   border-top: 1px solid var(--border);
