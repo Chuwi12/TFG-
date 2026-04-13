@@ -3,7 +3,9 @@
   --bg-primary: #F5F4EB;
   --text-primary: #000000;
   --text-secondary: #555555;
-  --border-color: #000000;
+  --stroke-color: #000000;
+  --stroke-width: 2px;
+  --border-radius: 0px;
 
   display: block;
   height: 100vh;
@@ -11,7 +13,8 @@
   background-color: var(--bg-primary);
   color: var(--text-primary);
   font-family: "Geist Mono", monospace;
-  overflow: hidden; /* Evitar scroll general, lo tendrá el chat-log */
+  overflow: hidden;
+  /* Evitar scroll general, lo tendrá el chat-log */
 }
 
 /* =========== CONTENEDOR PRINCIPAL =========== */
@@ -21,8 +24,9 @@
   height: 100%;
   max-width: 900px;
   margin: 0 auto;
-  border-left: 1px solid var(--border-color);
-  border-right: 1px solid var(--border-color);
+  border-left: var(--stroke-width) solid var(--stroke-color);
+  border-right: var(--stroke-width) solid var(--stroke-color);
+  border-radius: var(--border-radius);
 }
 
 /* =========== CABECERA INSTITUCIONAL =========== */
@@ -31,12 +35,13 @@
   justify-content: space-between;
   align-items: center;
   padding: 1.5rem 2rem;
-  border-bottom: 2px solid var(--border-color);
+  border-bottom: var(--stroke-width) solid var(--stroke-color);
   background-color: var(--bg-primary);
+  border-radius: var(--border-radius);
 }
 
 .serif-title {
-  font-family: "Instrument Serif", serif;
+  font-family: "PP Editorial New", "Fraunces", serif;
   font-size: 2.5rem;
   font-weight: normal;
   margin: 0;
@@ -52,8 +57,15 @@
 }
 
 @keyframes blink {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.5; }
+
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.5;
+  }
 }
 
 /* =========== ZONA DE MENSAJES (LOG) =========== */
@@ -82,26 +94,48 @@
   display: flex;
   flex-direction: column;
   gap: 0.25rem;
+  padding: 1rem; /* Añadimos padding para que el contenido respire */
+}
+
+/* MENSAJES DEL SISTEMA (THE TICKER): Bloques sólidos de tinta */
+.message-bubble:not(.user-bubble) {
+  background-color: var(--stroke-color);
+  color: var(--bg-primary);
+  border-radius: var(--border-radius);
+  border: var(--stroke-width) solid var(--stroke-color);
+}
+
+.message-bubble:not(.user-bubble) .sender-label {
+  color: #a3a3a3; /* Gris claro para que el remitente contraste sobre el negro */
 }
 
 /* Etiqueta tipo consola: [OPERATOR] o [SYS_AI] */
 .sender-label {
+  font-family: "IBM Plex Mono", monospace;
   font-size: 0.75rem;
   font-weight: 700;
-  color: var(--text-secondary);
+  border-radius: var(--border-radius);
 }
 
 .message-text {
   font-size: 0.95rem;
-  white-space: pre-wrap; /* Mantiene los saltos de línea */
+  white-space: pre-wrap;
+  /* Mantiene los saltos de línea */
 }
 
-/* Opcional: Diferenciar un poco los mensajes del usuario si fuera necesario, 
-   pero mantenemos la pureza de la tinta y el papel. */
+/* MENSAJES DEL OPERADOR (USUARIO): Tinta ligera sobre papel */
+.user-bubble {
+  background-color: transparent;
+  color: var(--text-primary);
+  border-radius: var(--border-radius);
+  border: 1px dashed var(--stroke-color); /* Borde discontinuo para las notas del usuario */
+}
+
 .user-bubble .sender-label {
   text-align: right;
-  color: var(--text-primary);
+  color: var(--text-secondary);
 }
+
 .user-bubble .message-text {
   text-align: right;
 }
@@ -111,8 +145,9 @@
   display: flex;
   align-items: center;
   padding: 1rem;
-  border-top: 2px solid var(--border-color);
+  border-top: var(--stroke-width) solid var(--stroke-color);
   background-color: var(--bg-primary);
+  border-radius: var(--border-radius);
 }
 
 .prompt-symbol {
@@ -129,6 +164,7 @@
   font-family: inherit;
   font-size: 1rem;
   outline: none;
+  border-radius: var(--border-radius);
 }
 
 .command-input::placeholder {
@@ -136,11 +172,12 @@
   font-style: italic;
 }
 
-/* Botón EXECUTE sólido */
+/* Botón EXECUTE */
 .execute-btn {
-  background-color: var(--border-color);
+  background-color: var(--stroke-color);
   color: var(--bg-primary);
-  border: none;
+  border: var(--stroke-width) solid var(--stroke-color);
+  border-radius: var(--border-radius);
   padding: 0.75rem 1.5rem;
   font-family: inherit;
   font-weight: bold;
