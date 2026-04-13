@@ -1,49 +1,36 @@
-<header class="main-header">
-  <div class="container">
-    <div class="identity">
-      <span class="symbol">◈</span>
-      <h1 class="division">Financial Analytics Terminal</h1>
-    </div>
-    <div class="status">System Status: Operational</div>
-  </div>
-</header>
+<main class="terminal-container">
+  <header class="terminal-header">
+    <h1 class="serif-title">Quantum Finance Terminal</h1>
+    <span class="status-indicator">● SECURE CONNECTION ESTABLISHED</span>
+  </header>
 
-<main class="viewport">
-  <section class="chat-terminal">
-    <div class="terminal-top">
-      <h2>Institutional Support Interface</h2>
-      <small>dataset: Banking77_v1.0</small>
-    </div>
-
-    <div class="log-display">
-      @for (msg of messages(); track $index) {
-        <div
-          class="entry"
-          [class.system]="msg.sender === 'system'"
-          [class.user]="msg.sender === 'user'"
-        >
-          <span class="sender-tag">[{{ msg.sender.toUpperCase() }}]</span>
-          <p>{{ msg.text }}</p>
+  <section class="chat-log" #scrollMe>
+    @for (msg of messages(); track msg.timestamp) {
+      <div class="message-row" [class.user-row]="msg.sender === 'user'">
+        <div class="message-bubble" [class.user-bubble]="msg.sender === 'user'">
+          <!-- Etiqueta estilo consola para el remitente -->
+          <span class="sender-label">
+            [{{ msg.sender === 'user' ? 'OPERATOR' : 'SYS_AI' }}] 
+          </span>
+          <!-- Mensaje -->
+          <span class="message-text">{{ msg.text }}</span>
         </div>
-      }
-    </div>
-
-    <form class="interaction-bar" (submit)="$event.preventDefault(); addMessage(userInput)">
-      <input
-        #userInput
-        type="text"
-        placeholder="ENTER TRANSACTION OR QUERY..."
-        aria-label="Input field"
-      />
-      <button type="submit">EXECUTE</button>
-    </form>
+      </div>
+    }
   </section>
-</main>
 
-<footer class="main-footer">
-  <div class="container">
-    <p>&copy; 2026 TFG de Sergio y Javier. Financial advise powered by AI.</p>
+  <!-- Interaction Bar (Consola) -->
+  <div class="interaction-bar">
+    <span class="prompt-symbol">></span>
+    <input 
+      type="text" 
+      class="command-input" 
+      placeholder="Awaiting query..." 
+      [value]="inputText()" 
+      (input)="updateInput($event)"
+      (keydown.enter)="sendMessage()"
+      autofocus
+    >
+    <button class="execute-btn" (click)="sendMessage()">EXECUTE</button>
   </div>
-</footer>
-
-<router-outlet />
+</main>
