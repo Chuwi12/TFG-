@@ -1,9 +1,16 @@
-import { Component, signal } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
 
 interface ChatMessage {
   text: string;
   sender: 'user' | 'bot';
   timestamp: Date;
+}
+
+interface ChatResponse {
+  intent: string;
+  response: string;
+  status: string;
 }
 
 @Component({
@@ -13,41 +20,50 @@ interface ChatMessage {
   styleUrl: './app.css'
 })
 export class App {
-  // Estado del chat usando Angular Signals para máxima reactividad
+  private http = inject(HttpClient);
+  private apiUrl = 'http://localhost:8000/chat';
+
   messages = signal<ChatMessage[]>([
     { text: 'TERMINAL INICIADA. Esperando entrada del operador...', sender: 'bot', timestamp: new Date() }
   ]);
-  
+
   inputText = signal('');
 
-  // Actualiza el contenido del signal cuando el usuario escribe
   updateInput(event: Event) {
     const input = event.target as HTMLInputElement;
     this.inputText.set(input.value);
   }
 
-  // Lógica de ejecución al enviar el mensaje
   sendMessage() {
     const query = this.inputText().trim();
     if (!query) return;
 
-    // 1. Añadimos el mensaje del usuario al historial
+    // 1. Mensaje del usuario al historial
     this.messages.update(msgs => [...msgs, {
       text: query,
       sender: 'user',
       timestamp: new Date()
     }]);
 
-    // 2. Limpiamos la barra de entrada
     this.inputText.set('');
 
-    // 3. (Mock temporal) Simulamos la latencia de red y proceso de la IA
-    setTimeout(() => {
-      this.messages.update(msgs => [...msgs, {
-        text: 'EJECUTANDO ANÁLISIS SINTÁCTICO... [Simulación - API No Conectada]',
-        sender: 'bot',
-        timestamp: new Date()
-      }]);
-    }, 800); // 800ms de retraso para dar sensación de procesamiento
+    // 2. Llamada REAL al backend de Python
+    this.http.post<ChatResponse>(this.apiUrl, { message: query }).subscribe({
+      next: (res) => {
+        this.messages.update(msgs => [...msgs, {
+          text: res.response,
+          sender: 'bot',
+          timestamp: new Date()
+        }]);
+      },
+      error: () => {
+        this.messages.update(msgs => [...msgs, {
+          text: 'ERROR: No se pudo conectar con el servidor. ¿Está el backend activo?',
+          sender: 'bot',
+          timestamp: new Date()
+        }]);
+      }
+    });
   }
 }
+

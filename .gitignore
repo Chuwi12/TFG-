@@ -34,3 +34,7 @@ Thumbs.db
 # VARIABLES DE ENTORNO LOCALES (Secretos y configuraciones de cada PC)
 .env
 *.env
+
+# ARCHIVOS PERSONALES / LOCALES
+COMMANDS.md
+backend/labels.json
