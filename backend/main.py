@@ -28,10 +28,13 @@ vectorizer = SentenceTransformer('sentence-transformers/distiluse-base-multiling
 print("Cargando Red Neuronal...")
 model = NeuralNetwork().to(device)
 
+# esto para cargar el modelo entrenado
 model_path = "intent_classifier.pth"
+is_model_loaded = False
 if os.path.exists(model_path):
     model.load_state_dict(torch.load(model_path, map_location=device))
     model.eval()
+    is_model_loaded = True
     print(f"Modelo cargado desde: {model_path}")
 else:
     print("WARNING: No se encontró 'intent_classifier.pth'. Ejecuta train.py primero.")
@@ -53,6 +56,9 @@ def health():
 
 @app.post("/chat")
 async def chat(request: MessageRequest):
+    if not is_model_loaded:
+        raise HTTPException(status_code=503, detail="Servicio no disponible: El modelo de IA no está cargado.")
+
     text = request.message.strip()
     if not text:
         raise HTTPException(status_code=400, detail="Mensaje vacío")

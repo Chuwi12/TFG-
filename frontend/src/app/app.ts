@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, signal, ViewChild, ElementRef, AfterViewChecked } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 
 interface ChatMessage {
@@ -19,15 +19,27 @@ interface ChatResponse {
   templateUrl: './app.html',
   styleUrl: './app.css'
 })
-export class App {
+export class App implements AfterViewChecked {
   private http = inject(HttpClient);
   private apiUrl = 'http://localhost:8000/chat';
+
+  @ViewChild('scrollMe') private myScrollContainer!: ElementRef;
 
   messages = signal<ChatMessage[]>([
     { text: 'TERMINAL INICIADA. Esperando entrada del operador...', sender: 'bot', timestamp: new Date() }
   ]);
 
   inputText = signal('');
+
+  ngAfterViewChecked() {
+    this.scrollToBottom();
+  }
+
+  private scrollToBottom(): void {
+    try {
+      this.myScrollContainer.nativeElement.scrollTop = this.myScrollContainer.nativeElement.scrollHeight;
+    } catch(err) { }
+  }
 
   updateInput(event: Event) {
     const input = event.target as HTMLInputElement;

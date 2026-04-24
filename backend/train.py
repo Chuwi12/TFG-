@@ -4,6 +4,7 @@ import torch.optim as optim
 from torch.utils.data import DataLoader
 from datasets import load_dataset
 import os
+import json
 
 # Importamos nuestro modelo y nuestro dataset de los otros archivos
 from model import NeuralNetwork
@@ -33,6 +34,14 @@ class ModelTrainer:
         print("Descargando/Cargando dataset...")
         hf_dataset = load_dataset("mteb/banking77")
         
+        # Guardar el mapa de etiquetas automáticamente
+        if 'label' in hf_dataset['train'].features:
+            label_names = hf_dataset['train'].features['label'].names
+            labels_map = {str(i): name for i, name in enumerate(label_names)}
+            with open("labels.json", "w") as f:
+                json.dump(labels_map, f, indent=4)
+            print("Etiquetas guardadas automáticamente en labels.json")
+            
         print("Preparando el conjunto de entrenamiento...")
         train_dataset = BankingDataset(hf_dataset['train'])
         # DataLoader se encarga de agrupar los datos en "batches" (lotes) y mezclarlos
