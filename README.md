@@ -5,7 +5,7 @@ Este repositorio contiene el código fuente de nuestro chatbot, dividido en un f
 ## Requisitos Previos
 Asegúrate de tener instalado en tu computadora:
 - [Node.js](https://nodejs.org/) y **pnpm** (puedes instalarlo con `npm install -g pnpm`)
-- [Python 3.8+](https://www.python.org/) y **uv** (gestor ultrarrápido para Python)
+- [Python 3.10 - 3.12](https://www.python.org/) y **uv** (gestor ultrarrápido para Python)
 - Git
 
 ---
@@ -33,6 +33,11 @@ uv venv
 ### Instalación de librerías necesarias
 ```bash
 uv sync
+```
+
+### Arrancar el servidor
+```bash
+uv run python main.py
 ```
 
 #### Activación de entorno virtual backend

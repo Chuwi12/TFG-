@@ -36,11 +36,11 @@ class ModelTrainer:
         self.optimizer = optim.Adam(self.model.parameters(), lr=self.learning_rate)
 
     def train(self):
-        print("Preparando el conjunto de entrenamiento para el chatbot...")
-        train_dataset = ChatDataset(tokenizer=self.tokenizer, split="train")
+        print("Descargando/Cargando dataset...")
+        hf_dataset = load_dataset("mteb/banking77")
         
-        self.build_model(len(self.tokenizer))
-        
+        print("Preparando el conjunto de entrenamiento...")
+        train_dataset = BankingDataset(hf_dataset['train'])
         # DataLoader se encarga de agrupar los datos en "batches" (lotes) y mezclarlos
         train_loader = DataLoader(train_dataset, batch_size=self.batch_size, shuffle=True)
         
