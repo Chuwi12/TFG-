@@ -13,7 +13,12 @@ dependencies = [
     "uvicorn",
     "numpy",
     "datasets>=3.1.0",
-   "sentence-transformers"
+    "sentence-transformers",
+    "pandas>=2.3.3",
+    "scikit-learn>=1.7.2",
+    "kagglehub>=1.0.1",
+    "transformers>=5.3.0",
+    "accelerate>=1.13.0",
 ]
 
 [tool.uv.sources]

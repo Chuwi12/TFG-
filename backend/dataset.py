@@ -1,30 +1,62 @@
 import torch
 from torch.utils.data import Dataset
-from sentence_transformers import SentenceTransformer
+import pandas as pd
+from datasets import load_dataset
+from transformers import AutoTokenizer
 
-class BankingDataset(Dataset):
-    def __init__(self, hf_dataset, model_name='sentence-transformers/distiluse-base-multilingual-cased-v2'):
-        """
-        Inicializa el dataset transformando el texto crudo en vectores de 512 dimensiones.
-        """
-        print("Cargando el modelo de lenguaje... (esto puede tardar unos segundos la primera vez)")
-        self.vectorizer = SentenceTransformer(model_name)
+class ChatDataset(Dataset):
+    def __init__(self, tokenizer: AutoTokenizer, max_length=512, split="train"):
+        self.tokenizer = tokenizer
+        self.max_length = max_length
         
-        print("Extrayendo textos y etiquetas...")
-        texts = [item['text'] for item in hf_dataset]
-        labels = [item['label'] for item in hf_dataset]
+        print(f"Cargando OpenAssistant/oasst1 ({split})... esto puede tardar un poco.")
+        ds = load_dataset('OpenAssistant/oasst1')
+        df = ds[split].to_pandas()
         
-        print(f"Vectorizando {len(texts)} frases a 512 dimensiones... (por favor, espera)")
-        # Convertimos todos los textos a la vez. El resultado es un array de numpy
-        embeddings = self.vectorizer.encode(texts, show_progress_bar=True)
+        # Filtrar por idioma español
+        df_es = df[df['lang'] == 'es']
         
-        # Guardamos los datos como tensores de PyTorch listos para el modelo
-        self.x = torch.tensor(embeddings, dtype=torch.float32)
-        self.y = torch.tensor(labels, dtype=torch.long)
-        print("¡Dataset listo para entrenar!")
+        # Separar roles
+        prompters = df_es[df_es['role'] == 'prompter']
+        assistants = df_es[df_es['role'] == 'assistant']
+        
+        # Unir para crear pares pregunta-respuesta
+        pairs = pd.merge(prompters, assistants, left_on='message_id', right_on='parent_id', suffixes=('_p', '_a'))
+        
+        self.texts = []
+        for _, row in pairs.iterrows():
+            prompt = row['text_p']
+            response = row['text_a']
+            # Formato conversacional
+            text = f"<|prompter|>{prompt}</s><|assistant|>{response}</s>"
+            self.texts.append(text)
+            
+        print(f"Dataset listo: {len(self.texts)} conversaciones en español encontradas.")
 
     def __len__(self):
-        return len(self.y)
+        return len(self.texts)
 
     def __getitem__(self, idx):
-        return self.x[idx], self.y[idx]
+        text = self.texts[idx]
+        
+        encodings = self.tokenizer(
+            text,
+            truncation=True,
+            max_length=self.max_length,
+            padding="max_length",
+            return_tensors="pt"
+        )
+        
+        input_ids = encodings["input_ids"].squeeze()
+        attention_mask = encodings["attention_mask"].squeeze()
+        
+        # Para modelos causales, los labels son los mismos input_ids
+        # Ignoramos el padding en la pérdida poniendo -100
+        labels = input_ids.clone()
+        labels[labels == self.tokenizer.pad_token_id] = -100
+        
+        return {
+            "input_ids": input_ids,
+            "attention_mask": attention_mask,
+            "labels": labels
+        }
