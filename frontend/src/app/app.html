@@ -1,39 +1,136 @@
-<div class="chat-container">
-  <header class="chat-header">
-    <div class="bot-avatar">🤖</div>
-    <div class="header-info">
-      <h1>Asistente IA (OpenAssistant)</h1>
-      <p>Conversación libre en español</p>
-    </div>
-  </header>
+<!-- =========== PANTALLA DE ONBOARDING =========== -->
+@if (!onboardingComplete() && !showRoadmap()) {
+  <div class="onboarding-overlay">
+    <div class="onboarding-card-wrapper">
+      <div class="onboarding-card-shadow"></div>
+      <div class="onboarding-card">
+        <h1 class="onboarding-title">THE TICKER</h1>
+        <div class="onboarding-divider"></div>
+        <p class="onboarding-subtitle">Configura tu terminal antes de empezar</p>
 
-  <main class="chat-box" #chatScroll>
-    <div class="message-wrapper" *ngFor="let msg of messages()" [ngClass]="{'user-wrapper': msg.sender === 'user', 'bot-wrapper': msg.sender === 'bot'}">
-      
-      <div *ngIf="msg.sender === 'bot'" class="avatar bot-avatar-small">🤖</div>
-      
-      <div class="message-content" [ngClass]="{'user-msg': msg.sender === 'user', 'bot-msg': msg.sender === 'bot'}">
-        <div class="text" [innerHTML]="formatText(msg.text)" *ngIf="msg.type === 'text'"></div>
-        
-        <!-- Loading Animation -->
-        <div class="typing-indicator" *ngIf="msg.type === 'loading'">
-          <span></span><span></span><span></span>
+        <div class="onboarding-progress">
+          @for (q of onboardingQuestions; track q.key) {
+            <span class="progress-dot" [class.active]="onboardingStep() >= onboardingQuestions.indexOf(q)"></span>
+          }
         </div>
+
+        @if (currentQuestion(); as q) {
+          <div class="onboarding-question">
+            <label class="question-label">{{ q.question }}</label>
+
+            @if (q.options) {
+              <div class="options-group">
+                @for (opt of q.options; track opt) {
+                  <button class="option-btn" (click)="selectOption(q.key, opt)">{{ opt }}</button>
+                }
+              </div>
+            } @else {
+              <div class="onboarding-input-row">
+                <input
+                  type="text"
+                  class="onboarding-input"
+                  [placeholder]="q.placeholder"
+                  [value]="onboardingInput()"
+                  (input)="updateOnboardingInput($event)"
+                  (keydown.enter)="submitOnboardingStep()"
+                  autofocus
+                >
+                <button class="onboarding-next-btn" (click)="submitOnboardingStep()">→</button>
+              </div>
+            }
+          </div>
+        }
       </div>
     </div>
-  </main>
+  </div>
+}
 
-  <footer class="chat-input-area">
-    <input 
-      type="text" 
-      [(ngModel)]="userInput" 
-      (keyup.enter)="handleTextSubmit()"
-      placeholder="Escribe un mensaje..."
-      [disabled]="!isApiReady()"
-    />
-    <button class="send-btn" (click)="handleTextSubmit()" [disabled]="!userInput.trim() || !isApiReady()">
-      <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
-    </button>
-  </footer>
-</div>
-ñ
+<!-- =========== PANTALLA DE HOJA DE RUTA =========== -->
+@if (!onboardingComplete() && showRoadmap()) {
+  <div class="roadmap-overlay">
+    <div class="roadmap-card">
+      <h1 class="roadmap-title">TU HOJA DE RUTA</h1>
+      <div class="roadmap-divider"></div>
+
+      <div class="roadmap-profile-tag">
+        <span class="roadmap-label">PERFIL DETECTADO</span>
+        <span class="roadmap-value">{{ roadmapProfile().title }}</span>
+      </div>
+
+      <div class="roadmap-user-info">
+        <span class="roadmap-info-line">OPERADOR: {{ userProfile().name | uppercase }}</span>
+        <span class="roadmap-info-line">NIVEL: {{ userProfile().level | uppercase }}</span>
+      </div>
+
+      <div class="roadmap-concepts">
+        <span class="roadmap-concepts-label">CONCEPTOS A APRENDER</span>
+        @for (concept of roadmapProfile().concepts; track concept; let i = $index) {
+          <div class="roadmap-concept-item">
+            <span class="concept-number">0{{ i + 1 }}</span>
+            <span class="concept-name">{{ concept }}</span>
+          </div>
+        }
+      </div>
+
+      <button class="roadmap-start-btn" (click)="startTerminal()">INICIAR TERMINAL</button>
+    </div>
+  </div>
+}
+
+<!-- =========== INTERFAZ PRINCIPAL =========== -->
+@if (onboardingComplete()) {
+  <div class="app-layout">
+    <main class="terminal-container">
+      <header class="terminal-header">
+        <div class="header-left">
+          <span class="header-tag">SYS//</span>
+          <span class="header-session">THE TICKER</span>
+        </div>
+        <span class="status-indicator">● CONNECTED</span>
+      </header>
+
+      <section class="chat-log" #scrollMe>
+        @for (msg of messages(); track msg.timestamp) {
+          <div class="message-row"
+            [class.user-row]="msg.sender === 'user'"
+            [class.typing-row]="msg.sender === 'typing'"
+          >
+            <div class="message-bubble"
+              [class.user-bubble]="msg.sender === 'user'"
+              [class.typing-bubble]="msg.sender === 'typing'"
+            >
+              @if (msg.sender === 'typing') {
+                <span class="typing-indicator">
+                  <span class="dot"></span>
+                  <span class="dot"></span>
+                  <span class="dot"></span>
+                </span>
+              } @else {
+                <span class="sender-label">
+                  [{{ msg.sender === 'user' ? 'OPERATOR' : 'SYS_AI' }}]
+                </span>
+                <span class="message-text">{{ msg.text }}</span>
+              }
+            </div>
+          </div>
+        }
+      </section>
+
+      <!-- Interaction Bar -->
+      <div class="interaction-bar">
+        <span class="prompt-symbol">></span>
+        <input
+          type="text"
+          class="command-input"
+          [placeholder]="isLoading() ? 'Procesando...' : 'Awaiting query...'"
+          [value]="inputText()"
+          (input)="updateInput($event)"
+          (keydown.enter)="sendMessage()"
+          [disabled]="isLoading()"
+          autofocus
+        >
+        <button class="execute-btn" (click)="sendMessage()" [disabled]="isLoading()">EXECUTE</button>
+      </div>
+    </main>
+  </div>
+}
