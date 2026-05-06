@@ -25,6 +25,13 @@
   overflow: hidden;
 }
 
+:host,
+:host *,
+:host *::before,
+:host *::after {
+  box-sizing: border-box;
+}
+
 /* =========================================================
    ONBOARDING
    ========================================================= */
@@ -41,7 +48,7 @@
 .onboarding-card-wrapper {
   position: relative;
   max-width: 480px;
-  width: 100%;
+  width: min(100% - 2rem, 480px);
 }
 
 /* La "sombra" es una caja sólida negra desplazada detrás */
@@ -194,7 +201,7 @@
 
 .roadmap-card {
   max-width: 520px;
-  width: 100%;
+  width: min(100% - 2rem, 520px);
   border: var(--stroke-w) solid var(--accent);
   padding: 3rem;
   display: flex;
@@ -528,4 +535,44 @@
 .execute-btn:disabled {
   opacity: 0.3;
   cursor: not-allowed;
+}
+
+@media (max-width: 640px) {
+  .onboarding-card,
+  .roadmap-card {
+    padding: 2rem 1.25rem;
+  }
+
+  .onboarding-title {
+    font-size: 2.4rem;
+  }
+
+  .roadmap-title {
+    font-size: 1.25rem;
+  }
+
+  .roadmap-value {
+    font-size: 1.1rem;
+    text-align: center;
+  }
+
+  .terminal-header {
+    padding: 0.7rem 1rem;
+  }
+
+  .chat-log {
+    padding: 1rem;
+  }
+
+  .message-bubble {
+    max-width: 92%;
+  }
+
+  .interaction-bar {
+    gap: 0.6rem;
+  }
+
+  .execute-btn {
+    padding-inline: 0.75rem;
+  }
 }

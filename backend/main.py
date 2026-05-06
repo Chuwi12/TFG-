@@ -5,7 +5,7 @@ import os
 
 from model import ChatModel
 
-app = FastAPI(title="Chatbot IA en Español (OpenAssistant)")
+app = FastAPI(title="THE TICKER API")
 
 # Configurar CORS
 app.add_middleware(
@@ -28,10 +28,10 @@ async def load_model():
     try:
         model_path = "./saved_chat_model/custom_model.pth"
         if os.path.exists(model_path):
-            print("Cargando red neuronal propia entrenada localmente...")
+            print("Cargando modelo ajustado guardado localmente...")
             chat_model = ChatModel(vocab_model_name="./saved_chat_model", load_path=model_path)
         else:
-            print("Instanciando red neuronal propia desde cero (sin entrenar)...")
+            print("Cargando modelo preentrenado en espanol...")
             chat_model = ChatModel(vocab_model_name="datificate/gpt2-small-spanish")
             
         print("Modelo de lenguaje listo para conversar.")
@@ -40,7 +40,7 @@ async def load_model():
 
 @app.get("/")
 async def root():
-    return {"message": "API de Chatbot funcionando. Entrenado con OpenAssistant oasst1 en español."}
+    return {"message": "API de THE TICKER funcionando. Carga CausalTransformer entrenado si existe; si no, usa un modelo preentrenado en espanol."}
 
 @app.post("/chat")
 async def chat(req: MessageRequest):

@@ -156,7 +156,8 @@ export class App implements AfterViewChecked {
       'Ruta inicial:',
       '- ' + rp.concepts.join(String.fromCharCode(10) + '- '),
       '',
-      'Estoy listo para ayudarte con tus finanzas personales.',
+      'Estoy listo para ayudarte a aprender finanzas personales.',
+      'Nota: esto es una guia educativa, no asesoramiento financiero profesional.',
       'Pregunta con tus palabras: ahorro, deudas, inversion, presupuesto o seguridad.'
     ];
     const greeting = lines.join(String.fromCharCode(10));
@@ -191,8 +192,8 @@ export class App implements AfterViewChecked {
       timestamp: new Date()
     }]);
 
-    // 3. Crear el "Prompt Oculto" con el contexto del usuario
-    const contexto = `Actúa como asesor financiero. Soy un joven de nivel ${this.userProfile().level} y mi objetivo principal es ${this.userProfile().concern}. `;
+    // 3. Crear el prompt con el contexto educativo del usuario
+    const contexto = `Actua como tutor educativo de finanzas personales. No des asesoramiento financiero profesional. Soy un joven de nivel ${this.userProfile().level} y mi objetivo principal es ${this.userProfile().concern}. `;
     const promptOculto = contexto + query;
 
     // 4. Llamada REAL al backend de Python

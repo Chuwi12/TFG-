@@ -3,6 +3,7 @@
 **/dist/
 **/.angular/
 npm-debug.log*
+*.log
 
 # BACKEND (Python / PyTorch)
 # Entornos virtuales
@@ -20,6 +21,10 @@ env/
 *.pth
 *.pt
 *.onnx
+*.pkl
+*.joblib
+*.safetensors
+saved_chat_model/
 
 # Descomentar la siguiente línea SOLO si el dataset pesa más de 50MB
 # backend/dataset.json 
