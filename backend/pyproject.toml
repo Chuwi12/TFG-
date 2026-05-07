@@ -3,7 +3,7 @@ name = "chatbot-backend"
 version = "0.1.0"
 description = "Backend con IA para el TFG"
 readme = "README.md"
-requires-python = ">=3.10,<3.13"
+requires-python = ">=3.10,<3.14"
 dependencies = [
     "torch",
     "torchvision",
@@ -22,9 +22,15 @@ dependencies = [
 ]
 
 [tool.uv.sources]
-torch = { index = "pytorch" }
-torchvision = { index = "pytorch" }
-torchaudio = { index = "pytorch" }
+torch = [
+    { index = "pytorch", marker = "sys_platform != 'darwin'" }
+]
+torchvision = [
+    { index = "pytorch", marker = "sys_platform != 'darwin'" } 
+] 
+torchaudio = [
+    { index = "pytorch", marker = "sys_platform != 'darwin'" }
+]
 
 [[tool.uv.index]]
 name = "pytorch"
