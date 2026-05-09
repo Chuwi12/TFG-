@@ -9,6 +9,7 @@ fi
 ciclos=$1
 
 for ((i = 1; i <= ciclos; i++)); do
+  echo "Ciclo $i"
   # Ejecutamos python (el .env se encargará de la GPU automáticamente)
   python train.py
 done

@@ -9,6 +9,7 @@ end
 set ciclos $argv[1]
 
 for i in (seq $ciclos)
+    echo "Ciclo $i"
     # Ejecutamos python
     python train.py
 end
