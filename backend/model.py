@@ -3,7 +3,7 @@ import torch.nn as nn
 from transformers import AutoTokenizer
 import os
 
-class CausalTransformer(nn.Module):
+class ñnn.Module):
     def __init__(self, vocab_size, d_model=256, nhead=8, num_layers=4, max_seq_len=512):
         super().__init__()
         self.d_model = d_model
@@ -71,7 +71,7 @@ class ChatModel:
             print(f"Cargando pesos pre-entrenados desde {load_path}")
             self.model.load_state_dict(torch.load(load_path, map_location=self.device))
         
-    def generate_response(self, user_text, max_length=50):
+    def generate_response(self, user_text, max_length=50, temperature=0.7, top_k=50):
         self.model.eval()
         input_text = f"<|prompter|>{user_text}</s><|assistant|>"
         input_ids = self.tokenizer.encode(input_text, return_tensors="pt").to(self.device)
@@ -83,10 +83,15 @@ class ChatModel:
                     break
                     
                 logits, _ = self.model(input_ids)
-                next_token_logits = logits[:, -1, :]
+                next_token_logits = logits[:, -1, :] / temperature
                 
-                # Búsqueda greedy (cogemos el token más probable)
-                next_token = torch.argmax(next_token_logits, dim=-1).unsqueeze(0)
+                # Top-K filtering
+                top_k_logits, top_k_indices = torch.topk(next_token_logits, top_k)
+                probs = torch.nn.functional.softmax(top_k_logits, dim=-1)
+                
+                next_token_idx = torch.multinomial(probs, num_samples=1)
+                next_token = torch.gather(top_k_indices, -1, next_token_idx)
+                
                 input_ids = torch.cat([input_ids, next_token], dim=-1)
                 
                 if next_token.item() == self.tokenizer.eos_token_id or next_token.item() == self.tokenizer.pad_token_id:

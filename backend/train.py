@@ -36,6 +36,13 @@ class ModelTrainer:
 
     def build_model(self, vocab_size):
         self.model = CausalTransformer(vocab_size=vocab_size).to(self.device)
+        
+        # Intentar cargar pesos si existen
+        model_path = os.path.join(self.get_save_dir(), "custom_model.pth")
+        if os.path.exists(model_path):
+            print(f"Cargando modelo existente desde {model_path} para continuar entrenamiento...")
+            self.model.load_state_dict(torch.load(model_path, map_location=self.device))
+            
         # Usamos AdamW (con weight decay) que es mejor para Transformers que Adam normal
         self.optimizer = optim.AdamW(self.model.parameters(), lr=self.learning_rate, weight_decay=0.01)
         # Reduce el learning rate si la pérdida de validación deja de mejorar
