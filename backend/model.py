@@ -3,7 +3,7 @@ import torch.nn as nn
 from transformers import AutoTokenizer
 import os
 
-class ñnn.Module):
+class CausalTransformer(nn.Module):
     def __init__(self, vocab_size, d_model=256, nhead=8, num_layers=4, max_seq_len=512):
         super().__init__()
         self.d_model = d_model
