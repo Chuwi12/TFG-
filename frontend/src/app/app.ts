@@ -14,7 +14,6 @@ interface ChatResponse {
 
 interface UserProfile {
   name: string;
-  age: string;
   level: string;
   income: string;
   concern: string;
@@ -41,24 +40,23 @@ export class App implements AfterViewChecked {
   // Onboarding
   onboardingComplete = signal(false);
   onboardingStep = signal(0);
-  userProfile = signal<UserProfile>({ name: '', age: '', level: '', income: '', concern: '' });
+  userProfile = signal<UserProfile>({ name: '', level: '', income: '', concern: '' });
 
   // Roadmap
   showRoadmap = signal(false);
   roadmapProfile = signal<RoadmapProfile>({ title: '', concepts: [] });
 
-  // Chat — simple flat array, no sessions
+  // Chat
   messages = signal<ChatMessage[]>([]);
   inputText = signal('');
   isLoading = signal(false);
 
-  // Preguntas del onboarding
+  // Preguntas onboarding (orden corregido sin age)
   onboardingQuestions = [
     { key: 'name', question: '¿Cómo te llamas?', placeholder: 'Tu nombre...' },
-    { key: 'age', question: '¿Cuántos años tienes?', placeholder: 'Tu edad...' },
-    { key: 'level', question: '¿Cuál es tu nivel de conocimiento financiero?', placeholder: '', options: ['Principiante', 'Intermedio', 'Avanzado'] },
-    { key: 'income', question: '¿Tienes ingresos propios ahora mismo?', placeholder: '', options: ['Sí, trabajo', 'Sí, becas o ayudas', 'No de momento'] },
-    { key: 'concern', question: '¿Qué te preocupa más?', placeholder: '', options: ['Empezar a ahorrar', 'Entender la inversión', 'Salir de deudas', 'No sé por dónde empezar'] },
+    { key: 'level', question: '¿Cuál es tu nivel de conocimiento financiero?', options: ['Principiante', 'Intermedio', 'Avanzado'] },
+    { key: 'income', question: '¿Tienes ingresos propios?', options: ['Sí, trabajo', 'Sí, becas o ayudas', 'No de momento'] },
+    { key: 'concern', question: '¿Qué te preocupa más?', options: ['Empezar a ahorrar', 'Entender la inversión', 'Salir de deudas', 'No sé por dónde empezar'] },
   ];
 
   currentQuestion = computed(() => {

@@ -1,7 +1,8 @@
+from pathlib import Path
+
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-import os
 
 from model import ChatModel
 
@@ -22,17 +23,24 @@ class MessageRequest(BaseModel):
 # Variable global para el modelo
 chat_model = None
 
+BASE_DIR = Path(__file__).resolve().parent
+REPO_DIR = BASE_DIR.parent
+SAVED_MODEL_DIR = REPO_DIR / "saved_chat_model"
+CUSTOM_MODEL_PATH = SAVED_MODEL_DIR / "custom_model.pth"
+
 @app.on_event("startup")
 async def load_model():
     global chat_model
     try:
-        model_path = "./saved_chat_model/custom_model.pth"
-        if os.path.exists(model_path):
+        tokenizer_path = str(SAVED_MODEL_DIR) if (SAVED_MODEL_DIR / "tokenizer.json").exists() else "datificate/gpt2-small-spanish"
+
+        if CUSTOM_MODEL_PATH.exists():
             print("Cargando red neuronal propia entrenada localmente...")
-            chat_model = ChatModel(vocab_model_name="./saved_chat_model", load_path=model_path)
+            chat_model = ChatModel(vocab_model_name=tokenizer_path, load_path=str(CUSTOM_MODEL_PATH))
         else:
             print("Instanciando red neuronal propia desde cero (sin entrenar)...")
-            chat_model = ChatModel(vocab_model_name="datificate/gpt2-small-spanish")
+            print(f"No se ha encontrado el fichero de pesos: {CUSTOM_MODEL_PATH}")
+            chat_model = ChatModel(vocab_model_name=tokenizer_path)
             
         print("Modelo de lenguaje listo para conversar.")
     except Exception as e:
@@ -40,7 +48,14 @@ async def load_model():
 
 @app.get("/")
 async def root():
-    return {"message": "API de Chatbot funcionando. Entrenado con OpenAssistant oasst1 en español."}
+    return {"message": "API de Chatbot funcionando. Preparada para usar un modelo entrenado con OpenAssistant oasst1 en español."}
+
+@app.get("/health")
+async def health():
+    return {
+        "status": "ok" if chat_model is not None else "model_not_loaded",
+        "custom_model_found": CUSTOM_MODEL_PATH.exists(),
+    }
 
 @app.post("/chat")
 async def chat(req: MessageRequest):
