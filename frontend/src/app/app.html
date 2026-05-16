@@ -90,7 +90,7 @@
           type="button"
           class="status-indicator"
           [class.status-ready]="backendStatus() === 'ready'"
-          [class.status-warning]="backendStatus() === 'untrained'"
+          [class.status-warning]="backendStatus() === 'guided'"
           [class.status-offline]="backendStatus() === 'offline'"
           (click)="checkBackend()"
         >
