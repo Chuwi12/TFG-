@@ -334,11 +334,27 @@
 }
 
 .status-indicator {
+  background: transparent;
+  border: 0;
   font-size: 0.7rem;
   font-weight: 600;
+  font-family: inherit;
   letter-spacing: 0.04em;
+  color: #6b5d4a;
+  cursor: pointer;
+}
+
+.status-ready {
   color: #4a6b3a;
   animation: blink 2.5s infinite;
+}
+
+.status-warning {
+  color: #8b6914;
+}
+
+.status-offline {
+  color: #8a2f20;
 }
 
 @keyframes blink {
@@ -375,11 +391,19 @@
   padding: 0.8rem 1rem;
 }
 
-/* BUBBLE DEL BOT - a la izquierda - más oscuro */
-.message-bubble:not(.user-bubble):not(.typing-bubble) {
+.message-bubble:not(.user-bubble):not(.typing-bubble):not(.system-bubble) {
   background-color: #a09070;
   color: #1a1410;
   border: 3px solid #3d3121;
+  border-radius: 16px 16px 16px 4px;
+  align-self: flex-start;
+  box-shadow: 3px 3px 0 #2d2416;
+}
+
+.system-bubble {
+  background-color: #e0c7a1;
+  color: #3d3121;
+  border: 3px solid #8a2f20;
   border-radius: 16px 16px 16px 4px;
   align-self: flex-start;
   box-shadow: 3px 3px 0 #2d2416;
@@ -494,4 +518,24 @@
 .execute-btn:disabled {
   opacity: 0.4;
   cursor: not-allowed;
+}
+
+@media (max-width: 640px) {
+  .onboarding-card,
+  .roadmap-card {
+    padding: 2rem;
+  }
+
+  .onboarding-title {
+    font-size: 2.6rem;
+  }
+
+  .terminal-header,
+  .interaction-bar {
+    padding-inline: 0.8rem;
+  }
+
+  .message-bubble {
+    max-width: 88%;
+  }
 }

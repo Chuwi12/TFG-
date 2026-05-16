@@ -86,11 +86,20 @@
           <span class="header-tag">SYS//</span>
           <span class="header-session">THE TICKER</span>
         </div>
-        <span class="status-indicator">● CONNECTED</span>
+        <button
+          type="button"
+          class="status-indicator"
+          [class.status-ready]="backendStatus() === 'ready'"
+          [class.status-warning]="backendStatus() === 'untrained'"
+          [class.status-offline]="backendStatus() === 'offline'"
+          (click)="checkBackend()"
+        >
+          ● {{ backendStatusLabel() }}
+        </button>
       </header>
 
       <section class="chat-log" #scrollMe>
-        @for (msg of messages(); track msg.timestamp) {
+        @for (msg of messages(); track msg.id) {
           <div class="message-row"
             [class.user-row]="msg.sender === 'user'"
             [class.typing-row]="msg.sender === 'typing'"
@@ -98,6 +107,7 @@
             <div class="message-bubble"
               [class.user-bubble]="msg.sender === 'user'"
               [class.typing-bubble]="msg.sender === 'typing'"
+              [class.system-bubble]="msg.sender === 'system'"
             >
               @if (msg.sender === 'typing') {
                 <span class="typing-indicator">
@@ -119,14 +129,14 @@
         <input
           type="text"
           class="command-input"
-          [placeholder]="isLoading() ? 'Procesando...' : 'Awaiting query...'"
+          [placeholder]="isLoading() ? 'Procesando...' : 'Escribe tu pregunta financiera...'"
           [value]="inputText()"
           (input)="updateInput($event)"
           (keydown.enter)="sendMessage()"
           [disabled]="isLoading()"
           autofocus
         >
-        <button class="execute-btn" (click)="sendMessage()" [disabled]="isLoading()">EXECUTE</button>
+        <button class="execute-btn" (click)="sendMessage()" [disabled]="!canSendMessage()">ENVIAR</button>
       </div>
     </main>
   </div>
