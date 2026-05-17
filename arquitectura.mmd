@@ -1,0 +1,46 @@
+graph TD
+    %% Usuarios
+    User([Usuario]) -->|Interactúa con interfaz| AppAngular
+    
+    %% Frontend
+    subgraph "Frontend"
+        AppAngular[Aplicación Angular]
+    end
+    
+    %% Conexiones Frontend - Backend
+    AppAngular -- "HTTP POST /chat" --> APIServer
+    AppAngular -- "HTTP GET /health" --> APIServer
+    
+    %% Backend
+    subgraph "Backend (Python)"
+        APIServer[Servidor Web FastAPI]
+        GestorModelo[Clase ChatModel]
+        
+        APIServer <-->|Petición de inferencia| GestorModelo
+    end
+    
+    %% IA y Modelos
+    subgraph "Componentes de IA y Almacenamiento"
+        ScriptEntrenamiento(train.py)
+        ScriptEjecucion(run_train.fish / sh)
+        PesosModelo[(custom_model.pth)]
+        Tokenizer[(tokenizer.json / HuggingFace)]
+        
+        ScriptEjecucion -->|Lanza ciclo de entreno| ScriptEntrenamiento
+        ScriptEntrenamiento -->|Guarda pesos actualizados| PesosModelo
+    end
+    
+    %% Conexiones Backend - Modelos
+    GestorModelo -->|Carga pesos entrenados| PesosModelo
+    GestorModelo -->|Carga vocabulario| Tokenizer
+    
+    %% Estilos
+    classDef frontend fill:#dd2c00,stroke:#333,stroke-width:2px,color:#fff;
+    classDef backend fill:#009688,stroke:#333,stroke-width:2px,color:#fff;
+    classDef ai fill:#ff9800,stroke:#333,stroke-width:2px,color:#fff;
+    classDef db fill:#607d8b,stroke:#333,stroke-width:2px,color:#fff;
+    
+    class AppAngular frontend;
+    class APIServer,GestorModelo backend;
+    class ScriptEntrenamiento,ScriptEjecucion ai;
+    class PesosModelo,Tokenizer db;
