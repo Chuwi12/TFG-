@@ -90,7 +90,7 @@
           type="button"
           class="status-indicator"
           [class.status-ready]="backendStatus() === 'ready'"
-          [class.status-warning]="backendStatus() === 'guided'"
+          [class.status-warning]="backendStatus() === 'missing'"
           [class.status-offline]="backendStatus() === 'offline'"
           (click)="checkBackend()"
         >
@@ -129,11 +129,11 @@
         <input
           type="text"
           class="command-input"
-          [placeholder]="isLoading() ? 'Procesando...' : 'Escribe tu pregunta financiera...'"
+          [placeholder]="chatInputPlaceholder()"
           [value]="inputText()"
           (input)="updateInput($event)"
           (keydown.enter)="sendMessage()"
-          [disabled]="isLoading()"
+          [disabled]="isLoading() || backendStatus() !== 'ready'"
           autofocus
         >
         <button class="execute-btn" (click)="sendMessage()" [disabled]="!canSendMessage()">ENVIAR</button>

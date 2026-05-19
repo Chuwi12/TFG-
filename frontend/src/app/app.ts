@@ -30,7 +30,7 @@ interface RoadmapProfile {
   concepts: string[];
 }
 
-type BackendStatus = 'checking' | 'ready' | 'guided' | 'offline';
+type BackendStatus = 'checking' | 'ready' | 'missing' | 'offline';
 
 @Component({
   selector: 'app-root',
@@ -77,8 +77,8 @@ export class App implements AfterViewChecked, OnInit {
     switch (this.backendStatus()) {
       case 'ready':
         return 'MODELO ACTIVO';
-      case 'guided':
-        return 'MODO GUIADO';
+      case 'missing':
+        return 'SIN MODELO';
       case 'offline':
         return 'BACKEND OFFLINE';
       default:
@@ -87,7 +87,24 @@ export class App implements AfterViewChecked, OnInit {
   });
 
   canSendMessage = computed(() => {
-    return !this.isLoading() && this.inputText().trim().length > 0;
+    return this.backendStatus() === 'ready' && !this.isLoading() && this.inputText().trim().length > 0;
+  });
+
+  chatInputPlaceholder = computed(() => {
+    if (this.isLoading()) {
+      return 'Procesando...';
+    }
+
+    switch (this.backendStatus()) {
+      case 'ready':
+        return 'Escribe tu pregunta financiera...';
+      case 'missing':
+        return 'Falta el modelo entrenado en saved_chat_model/custom_model.pth';
+      case 'offline':
+        return 'Backend no disponible';
+      default:
+        return 'Comprobando modelo...';
+    }
   });
 
   onboardingInput = signal('');
@@ -116,7 +133,7 @@ export class App implements AfterViewChecked, OnInit {
 
     this.http.get<HealthResponse>(`${this.apiBaseUrl}/health`).subscribe({
       next: (res) => {
-        this.backendStatus.set(res.custom_model_found ? 'ready' : 'guided');
+        this.backendStatus.set(res.custom_model_found ? 'ready' : 'missing');
       },
       error: () => {
         this.backendStatus.set('offline');
@@ -195,8 +212,12 @@ export class App implements AfterViewChecked, OnInit {
       'Ruta inicial:',
       '- ' + rp.concepts.join(String.fromCharCode(10) + '- '),
       '',
-      'Estoy listo para ayudarte con tus finanzas personales.',
-      'Pregunta con tus palabras sobre ahorro, deudas, inversión, presupuesto o seguridad.'
+      this.backendStatus() === 'ready'
+        ? 'Estoy listo para ayudarte con tus finanzas personales.'
+        : 'El chat se activará cuando el backend detecte el modelo entrenado.',
+      this.backendStatus() === 'ready'
+        ? 'Pregunta con tus palabras sobre ahorro, deudas, inversión, presupuesto o seguridad.'
+        : 'Cuando aparezca MODELO ACTIVO, podrás escribir tu consulta.'
     ];
     const greeting = lines.join(String.fromCharCode(10));
     this.messages.set([this.createMessage(greeting, 'assistant')]);
@@ -212,19 +233,16 @@ export class App implements AfterViewChecked, OnInit {
     const query = this.inputText().trim();
     if (!query || this.isLoading()) return;
 
+    if (this.backendStatus() !== 'ready') {
+      this.checkBackend();
+      this.addMessage(this.getUnavailableModelMessage(), 'system');
+      return;
+    }
+
     this.addMessage(query, 'user');
     this.inputText.set('');
     this.isLoading.set(true);
     this.addMessage('...', 'typing');
-
-    if (this.backendStatus() !== 'ready') {
-      setTimeout(() => {
-        this.replaceTypingMessage(this.generateGuidedResponse(query), 'assistant');
-        this.isLoading.set(false);
-        this.checkBackend();
-      }, 350);
-      return;
-    }
 
     this.http.post<ChatResponse>(`${this.apiBaseUrl}/chat`, {
       message: this.buildPrompt(query)
@@ -258,63 +276,6 @@ export class App implements AfterViewChecked, OnInit {
     return text || 'No he podido generar una respuesta clara. Prueba a reformular la pregunta con más contexto.';
   }
 
-  private generateGuidedResponse(userQuestion: string): string {
-    const question = this.normalizeText(userQuestion);
-    const profile = this.userProfile();
-    const intro = `Con tu perfil de ${profile.level || 'principiante'}, lo enfocaría así:`;
-
-    if (this.includesAny(question, ['ahorro', 'ahorrar', 'emergencia', 'guardar'])) {
-      return [
-        intro,
-        '1. Separa primero un importe pequeño y fijo al recibir ingresos, aunque sean 5 o 10 euros.',
-        '2. Crea un fondo de emergencia antes de pensar en invertir: el objetivo inicial puede ser cubrir un mes de gastos básicos.',
-        '3. Revisa cada semana en qué se va el dinero para detectar gastos repetidos que puedas reducir sin complicarte.'
-      ].join('\n');
-    }
-
-    if (this.includesAny(question, ['deuda', 'deudas', 'prestamo', 'credito', 'tarjeta'])) {
-      return [
-        intro,
-        '1. Ordena tus deudas por cantidad pendiente, interés y fecha de pago.',
-        '2. Prioriza las que tengan mayor interés, porque son las que más crecen con el tiempo.',
-        '3. Evita pedir nueva deuda para tapar pagos antiguos salvo que entiendas claramente el coste total.'
-      ].join('\n');
-    }
-
-    if (this.includesAny(question, ['invertir', 'inversion', 'acciones', 'etf', 'fondo', 'indexado', 'bolsa'])) {
-      return [
-        intro,
-        '1. Antes de invertir, asegúrate de tener controlados tus gastos y un colchón básico.',
-        '2. Aprende la diferencia entre rentabilidad y riesgo: una inversión puede subir, bajar o tardar años en compensar.',
-        '3. Empieza estudiando productos diversificados, como fondos indexados o ETF, sin meter dinero que necesites a corto plazo.'
-      ].join('\n');
-    }
-
-    if (this.includesAny(question, ['presupuesto', 'gastos', 'ingresos', 'sueldo', 'beca'])) {
-      return [
-        intro,
-        '1. Divide tus ingresos en tres bloques: gastos necesarios, ocio y ahorro.',
-        '2. La regla 50/30/20 puede servir como referencia, pero debes adaptarla a tu situación real.',
-        '3. Lo importante no es que el presupuesto sea perfecto, sino que puedas revisarlo y mantenerlo cada mes.'
-      ].join('\n');
-    }
-
-    if (this.includesAny(question, ['seguridad', 'estafa', 'cripto', 'riesgo', 'fraude'])) {
-      return [
-        intro,
-        '1. Desconfía de cualquier propuesta que prometa beneficios rápidos o garantizados.',
-        '2. No compartas claves, códigos ni datos bancarios fuera de canales oficiales.',
-        '3. Si no entiendes cómo se gana dinero con un producto, trátalo como una señal de riesgo y párate antes de actuar.'
-      ].join('\n');
-    }
-
-    return [
-      intro,
-      'Puedo ayudarte con ahorro, deudas, inversión, presupuesto o seguridad financiera.',
-      'Para darte una respuesta más útil, formula la pregunta con una situación concreta, por ejemplo: "cobro 300 euros al mes y quiero empezar a ahorrar".'
-    ].join('\n');
-  }
-
   private getErrorMessage(error: HttpErrorResponse): string {
     if (error.status === 0) {
       return `No se pudo conectar con el backend. Comprueba que el servidor de Python esté arrancado en ${this.apiBaseUrl}.`;
@@ -324,17 +285,17 @@ export class App implements AfterViewChecked, OnInit {
     return `El backend respondió con un error (${error.status}): ${detail}`;
   }
 
+  private getUnavailableModelMessage(): string {
+    if (this.backendStatus() === 'offline') {
+      return `No se pudo conectar con el backend. Comprueba que esté arrancado en ${this.apiBaseUrl}.`;
+    }
+
+    return 'El modelo entrenado todavía no está disponible. Coloca los pesos en saved_chat_model/custom_model.pth y vuelve a comprobar el estado.';
+  }
+
   private resolveApiBaseUrl(): string {
     const host = globalThis.location?.hostname || 'localhost';
     return `http://${host}:8000`;
-  }
-
-  private normalizeText(text: string): string {
-    return text.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
-  }
-
-  private includesAny(text: string, words: string[]): boolean {
-    return words.some(word => text.includes(word));
   }
 
   private createMessage(text: string, sender: ChatMessage['sender']): ChatMessage {
