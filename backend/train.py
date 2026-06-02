@@ -46,7 +46,7 @@ class ModelTrainer:
         # Usamos AdamW (con weight decay) que es mejor para Transformers que Adam normal
         self.optimizer = optim.AdamW(self.model.parameters(), lr=self.learning_rate, weight_decay=0.01)
         # Reduce el learning rate si la pérdida de validación deja de mejorar
-        self.scheduler = optim.lr_scheduler.ReduceLROnPlateau(self.optimizer, mode='min', factor=0.5, patience=1, verbose=True)
+        self.scheduler = optim.lr_scheduler.ReduceLROnPlateau(self.optimizer, mode='min', factor=0.5, patience=1)
         # Scaler para Entrenamiento de Precisión Mixta (AMP) para ahorrar VRAM y acelerar
         self.scaler = GradScaler(enabled=torch.cuda.is_available())
 
